@@ -2,76 +2,69 @@
 import React from 'react'
 import { FIXED_REMINDERS } from '../constants'
 
-export function Header({ total, done, tab, setTab, remindersOn, setRemindersOn }) {
+export function Header({ total, done, remindersOn, setRemindersOn }) {
   const pct = total ? Math.round((done / total) * 100) : 0
+  const circumference = 2 * Math.PI * 20
+  const offset = circumference - (pct / 100) * circumference
 
   return (
-    <div style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)', flexShrink: 0 }}>
-      {/* Safe area top padding */}
-      <div style={{ height: 'env(safe-area-inset-top, 0px)', background: 'var(--bg)' }} />
+    <div style={{ background:'var(--bg)', borderBottom:'1px solid var(--border)', flexShrink:0 }}>
+      <div style={{ height:'env(safe-area-inset-top, 0px)' }} />
 
-      {/* Title row */}
-      <div style={{ padding: '16px 20px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {/* Title + ring */}
+      <div style={{ padding:'14px 20px 12px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 9, fontWeight: 800, letterSpacing: 5, color: 'var(--orange)', marginBottom: 5 }}>
+          <div style={{ fontFamily:'var(--font-head)', fontSize:9, fontWeight:800, letterSpacing:5, color:'var(--orange)', marginBottom:4 }}>
             ⬡ COMMAND CENTER
           </div>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 26, fontWeight: 800, color: 'var(--text)', lineHeight: 1, letterSpacing: -0.5 }}>
+          <div style={{ fontFamily:'var(--font-head)', fontSize:24, fontWeight:800, color:'var(--text)', lineHeight:1, letterSpacing:-0.5 }}>
             Life OS
           </div>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 36, fontWeight: 800, lineHeight: 1, color: pct === 100 ? 'var(--green)' : 'var(--orange)' }}>
-            {pct}<span style={{ fontSize: 12, color: 'var(--text4)' }}>%</span>
+          <div style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--text3)', marginTop:3 }}>
+            {done}/{total} tasks done today
           </div>
-          <div style={{ fontSize: 9, color: 'var(--text4)', letterSpacing: 2, marginTop: 2 }}>{done}/{total} DONE</div>
+        </div>
+
+        {/* SVG Progress Ring */}
+        <div style={{ position:'relative', width:56, height:56 }}>
+          <svg width="56" height="56" style={{ transform:'rotate(-90deg)' }}>
+            <circle cx="28" cy="28" r="20" fill="none" stroke="var(--border2)" strokeWidth="3" />
+            <circle cx="28" cy="28" r="20" fill="none"
+              stroke={pct === 100 ? 'var(--green)' : 'var(--orange)'}
+              strokeWidth="3" strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              style={{ transition:'stroke-dashoffset .6s ease, stroke .3s ease' }}
+            />
+          </svg>
+          <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span style={{ fontFamily:'var(--font-head)', fontWeight:800, fontSize:12, color:pct===100?'var(--green)':'var(--text)' }}>
+              {pct}%
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: 2, background: 'var(--border)' }}>
-        <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, var(--orange), var(--yellow))', transition: 'width .6s ease', borderRadius: 2 }} />
+      <div style={{ height:2, background:'var(--border)' }}>
+        <div style={{ height:'100%', width:`${pct}%`, background:'linear-gradient(90deg,var(--orange),var(--yellow))', transition:'width .6s ease' }} />
       </div>
 
-      {/* Daily reminders strip */}
-      <div style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontFamily: 'var(--font-head)', fontSize: 8, fontWeight: 800, letterSpacing: 3, color: 'var(--text4)', flexShrink: 0 }}>DAILY</span>
+      {/* Daily reminder pills */}
+      <div style={{ padding:'10px 16px', display:'flex', alignItems:'center', gap:6, overflowX:'auto', scrollbarWidth:'none' }}>
         {FIXED_REMINDERS.map(r => (
-          <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 10px', background: `${r.color}10`, border: `1px solid ${r.color}30`, borderRadius: 6, flexShrink: 0 }}>
-            <span style={{ fontSize: 14 }}>{r.icon}</span>
-            <div>
-              <div style={{ fontFamily: 'var(--font-head)', fontSize: 10, fontWeight: 800, color: r.color }}>{r.label}</div>
-              <div style={{ fontFamily: 'var(--font-head)', fontSize: 8, color: 'var(--text4)', letterSpacing: 0.5 }}>
-                {r.id === 'gym' ? 'Gym' : r.id === 'work' ? 'Work' : 'Family'}
-              </div>
-            </div>
+          <div key={r.id} style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 10px', background:`${r.color}12`, border:`1px solid ${r.color}30`, borderRadius:20, flexShrink:0 }}>
+            <span style={{ fontSize:12 }}>{r.icon}</span>
+            <span style={{ fontFamily:'var(--font-head)', fontSize:10, fontWeight:800, color:r.color }}>{r.label}</span>
           </div>
         ))}
         <button onClick={() => setRemindersOn(v => !v)} style={{
-          marginLeft: 'auto', padding: '5px 10px', flexShrink: 0, borderRadius: 5,
+          marginLeft:'auto', padding:'5px 12px', borderRadius:20, flexShrink:0,
           background: remindersOn ? '#0a1a0a' : '#1a0a0a',
-          border: `1px solid ${remindersOn ? '#4ade8044' : '#ef444444'}`,
+          border:`1px solid ${remindersOn ? '#4ade8055' : '#ef444455'}`,
           color: remindersOn ? 'var(--green)' : 'var(--red)',
-          fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: 8, letterSpacing: 2
-        }}>
-          {remindersOn ? 'ON' : 'OFF'}
-        </button>
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: 'flex' }}>
-        {[['tasks', '✓ TASKS'], ['ai', '◈ AI CHAT'], ['capture', '⬡ CAPTURE']].map(([k, v]) => (
-          <button key={k} onClick={() => setTab(k)} style={{
-            flex: 1, padding: '13px 4px 11px',
-            fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: 10, letterSpacing: 1.5,
-            color: tab === k ? 'var(--text)' : 'var(--text3)',
-            background: 'transparent', border: 'none',
-            borderBottom: `2px solid ${tab === k ? 'var(--orange)' : 'transparent'}`,
-            transition: 'color .15s, border-color .15s',
-          }}>
-            {v}
-          </button>
-        ))}
+          fontFamily:'var(--font-head)', fontWeight:800, fontSize:8, letterSpacing:2,
+        }}>{remindersOn ? '● ON' : '○ OFF'}</button>
       </div>
     </div>
   )

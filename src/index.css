@@ -1,13 +1,14 @@
 :root {
-  --bg:        #080810;
-  --bg2:       #0d0d1a;
-  --bg3:       #111120;
-  --border:    #1c1c2e;
-  --border2:   #252538;
+  --bg:        #07070f;
+  --bg2:       #0d0d1b;
+  --bg3:       #12121f;
+  --bg4:       #17172a;
+  --border:    #1e1e32;
+  --border2:   #28283e;
   --text:      #ffffff;
-  --text2:     #b0b0cc;
-  --text3:     #606080;
-  --text4:     #303050;
+  --text2:     #c0c0d8;
+  --text3:     #7070a0;
+  --text4:     #383858;
   --orange:    #f97316;
   --orange-d:  #c45c0a;
   --yellow:    #facc15;
@@ -20,16 +21,13 @@
   --violet:    #a78bfa;
   --font-head: 'Syne', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --safe-top:    env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --radius:    12px;
+  --nav-h:     72px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root {
-  height: 100%;
-  overscroll-behavior: none;
-}
+html, body, #root { height: 100%; overscroll-behavior: none; }
 
 body {
   background: var(--bg);
@@ -38,53 +36,53 @@ body {
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overflow: hidden;
+  user-select: none;
 }
 
-#root {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
+#root { display: flex; flex-direction: column; overflow: hidden; }
 
-/* scrollbar */
 ::-webkit-scrollbar { width: 2px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-/* Animations */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(110%); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideOutRight {
-  from { opacity: 1; transform: translateX(0); }
-  to   { opacity: 0; transform: translateX(110%); }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.35; }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
+/* ── Animations ── */
+@keyframes fadeUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
+@keyframes slideInR  { from { opacity:0; transform:translateX(110%); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideOutR { from { opacity:1; transform:translateX(0); }   to { opacity:0; transform:translateX(110%); } }
+@keyframes slideUp   { from { opacity:0; transform:translateY(100%); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse     { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+@keyframes spin      { to { transform:rotate(360deg); } }
+@keyframes glow      { 0%,100% { box-shadow:0 0 8px #f9731644; } 50% { box-shadow:0 0 20px #f97316aa; } }
+@keyframes countUp   { from { transform:translateY(8px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+@keyframes barGrow   { from { width:0%; } to { width:var(--w); } }
+@keyframes ringFill  { from { stroke-dashoffset:283; } to { stroke-dashoffset:var(--offset); } }
 
-.fade-up   { animation: fadeUp .28s cubic-bezier(.22,1,.36,1) both; }
-.toast-in  { animation: slideInRight .34s cubic-bezier(.22,1,.36,1) both; }
-.toast-out { animation: slideOutRight .26s ease both; }
-.pulsing   { animation: pulse 1.4s ease infinite; }
-.spinning  { animation: spin .8s linear infinite; }
+.fade-up    { animation: fadeUp   .3s cubic-bezier(.22,1,.36,1) both; }
+.fade-in    { animation: fadeIn   .2s ease both; }
+.toast-in   { animation: slideInR .36s cubic-bezier(.22,1,.36,1) both; }
+.toast-out  { animation: slideOutR .26s ease both; }
+.slide-up   { animation: slideUp  .32s cubic-bezier(.22,1,.36,1) both; }
+.pulsing    { animation: pulse 1.5s ease infinite; }
+.spinning   { animation: spin .8s linear infinite; }
 
-/* Interactive states */
-button { cursor: pointer; font-family: var(--font-mono); border: none; background: transparent; }
-input, textarea, select { font-family: var(--font-mono); color: var(--text); }
-input::placeholder, textarea::placeholder { color: var(--text4); }
-textarea { resize: none; }
-select option { background: var(--bg2); }
+/* ── Base elements ── */
+button { cursor:pointer; font-family:var(--font-mono); border:none; background:transparent; }
+input, textarea, select { font-family:var(--font-mono); color:var(--text); }
+input::placeholder, textarea::placeholder { color:var(--text4); }
+textarea { resize:none; }
+select option { background:var(--bg2); }
+
+/* ── Swipe task ── */
+.task-swipe-wrap { overflow: hidden; position: relative; }
+.task-swipe-inner { transition: transform .2s ease; }
+.task-swipe-inner.swiping { transition: none; }
+
+/* ── Bottom nav ── */
+.nav-item { transition: color .15s, transform .15s; }
+.nav-item.active { color: var(--orange) !important; }
+.nav-item:active { transform: scale(.88); }
+
+/* ── Ripple ── */
+@keyframes ripple { to { transform:scale(4); opacity:0; } }
+.ripple { position:absolute; border-radius:50%; background:rgba(249,115,22,.25); animation:ripple .5s ease; pointer-events:none; }
