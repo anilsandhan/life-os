@@ -1,88 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+/* ── DESIGN TOKENS ─────────────────────────────────────────────────────── */
 :root {
-  --bg:        #07070f;
-  --bg2:       #0d0d1b;
-  --bg3:       #12121f;
-  --bg4:       #17172a;
-  --border:    #1e1e32;
-  --border2:   #28283e;
-  --text:      #ffffff;
-  --text2:     #c0c0d8;
-  --text3:     #7070a0;
-  --text4:     #383858;
-  --orange:    #f97316;
-  --orange-d:  #c45c0a;
-  --yellow:    #facc15;
-  --green:     #4ade80;
-  --red:       #ef4444;
-  --amber:     #f59e0b;
-  --teal:      #2dd4bf;
-  --pink:      #f472b6;
-  --blue:      #38bdf8;
-  --violet:    #a78bfa;
-  --font-head: 'Syne', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Core palette — obsidian + bone + amber signal */
+  --void:      #050508;
+  --deep:      #09090f;
+  --surface:   #0e0e18;
+  --elevated:  #141422;
+  --rim:       #1e1e30;
+  --rim2:      #2a2a40;
+  --muted:     #383858;
+  --subtle:    #505070;
+  --dim:       #7070a0;
+  --mid:       #9090b8;
+  --text:      #e8e8f0;
+  --bright:    #ffffff;
+
+  /* Signal colors */
+  --signal:    #e8a020;   /* amber — primary action */
+  --signal-d:  #b87818;
+  --signal-l:  #f0c060;
+  --critical:  #e05050;
+  --success:   #40c080;
+  --info:      #4090e0;
+  --accent:    #c060e0;
+
+  /* Area palette — desaturated, refined */
+  --c-work:     #e07030;
+  --c-property: #3090c0;
+  --c-family:   #c060a0;
+  --c-home:     #8060c0;
+  --c-health:   #30b060;
+  --c-finance:  #c0a030;
+  --c-other:    #607080;
+
+  /* Type */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-ui:      'Space Grotesk', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  /* Layout */
+  --nav-h:     68px;
+  --header-h:  auto;
+  --radius-sm: 6px;
   --radius:    12px;
-  --nav-h:     72px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 }
 
+/* ── RESET ─────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html, body, #root { height: 100%; overscroll-behavior: none; }
 
 body {
-  background: var(--bg);
+  background: var(--void);
   color: var(--text);
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overflow: hidden;
-  user-select: none;
+  font-size: 14px;
 }
 
 #root { display: flex; flex-direction: column; overflow: hidden; }
 
-::-webkit-scrollbar { width: 2px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+/* ── SCROLLBAR ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 1px; }
+::-webkit-scrollbar-thumb { background: var(--rim2); }
 
-/* ── Animations ── */
-@keyframes fadeUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+/* ── KEYFRAMES ─────────────────────────────────────────────────────────── */
+@keyframes fadeUp    { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeIn    { from { opacity:0; } to { opacity:1; } }
-@keyframes slideInR  { from { opacity:0; transform:translateX(110%); } to { opacity:1; transform:translateX(0); } }
-@keyframes slideOutR { from { opacity:1; transform:translateX(0); }   to { opacity:0; transform:translateX(110%); } }
 @keyframes slideUp   { from { opacity:0; transform:translateY(100%); } to { opacity:1; transform:translateY(0); } }
-@keyframes pulse     { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+@keyframes slideInR  { from { opacity:0; transform:translateX(112%); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideOutR { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(112%); } }
+@keyframes pulse     { 0%,100%{opacity:1;} 50%{opacity:.25;} }
 @keyframes spin      { to { transform:rotate(360deg); } }
-@keyframes glow      { 0%,100% { box-shadow:0 0 8px #f9731644; } 50% { box-shadow:0 0 20px #f97316aa; } }
-@keyframes countUp   { from { transform:translateY(8px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-@keyframes barGrow   { from { width:0%; } to { width:var(--w); } }
-@keyframes ringFill  { from { stroke-dashoffset:283; } to { stroke-dashoffset:var(--offset); } }
+@keyframes strikeIn  { from{width:0} to{width:100%} }
+@keyframes completePop { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 70%{transform:scale(.94)} 100%{transform:scale(1)} }
+@keyframes confettiFall { 0%{transform:translateY(-10px) rotate(0deg);opacity:1} 100%{transform:translateY(60px) rotate(720deg);opacity:0} }
+@keyframes glowPulse { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 20px 2px var(--signal-l)40} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes ringFill { from{stroke-dashoffset:283} to{stroke-dashoffset:var(--offset)} }
+@keyframes countTick { from{transform:translateY(6px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes barSlide  { from{width:0} to{width:var(--bar-w)} }
 
-.fade-up    { animation: fadeUp   .3s cubic-bezier(.22,1,.36,1) both; }
-.fade-in    { animation: fadeIn   .2s ease both; }
-.toast-in   { animation: slideInR .36s cubic-bezier(.22,1,.36,1) both; }
-.toast-out  { animation: slideOutR .26s ease both; }
-.slide-up   { animation: slideUp  .32s cubic-bezier(.22,1,.36,1) both; }
-.pulsing    { animation: pulse 1.5s ease infinite; }
-.spinning   { animation: spin .8s linear infinite; }
+/* ── UTILITY CLASSES ───────────────────────────────────────────────────── */
+.fade-up    { animation: fadeUp  .32s cubic-bezier(.22,1,.36,1) both; }
+.fade-in    { animation: fadeIn  .2s ease both; }
+.slide-up   { animation: slideUp .36s cubic-bezier(.22,1,.36,1) both; }
+.toast-in   { animation: slideInR  .38s cubic-bezier(.22,1,.36,1) both; }
+.toast-out  { animation: slideOutR .28s ease both; }
+.pulsing    { animation: pulse 1.6s ease infinite; }
+.spinning   { animation: spin .9s linear infinite; }
 
-/* ── Base elements ── */
-button { cursor:pointer; font-family:var(--font-mono); border:none; background:transparent; }
-input, textarea, select { font-family:var(--font-mono); color:var(--text); }
-input::placeholder, textarea::placeholder { color:var(--text4); }
+/* ── ELEMENTS ──────────────────────────────────────────────────────────── */
+button { cursor:pointer; font-family:var(--font-ui); border:none; background:transparent; color:inherit; }
+input, textarea, select { font-family:var(--font-ui); color:var(--text); background:transparent; }
+input::placeholder, textarea::placeholder { color:var(--muted); }
 textarea { resize:none; }
-select option { background:var(--bg2); }
+select option { background:var(--surface); }
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
 
-/* ── Swipe task ── */
-.task-swipe-wrap { overflow: hidden; position: relative; }
-.task-swipe-inner { transition: transform .2s ease; }
-.task-swipe-inner.swiping { transition: none; }
+/* ── TASK COMPLETION ANIMATION ─────────────────────────────────────────── */
+.task-completing { animation: completePop .4s cubic-bezier(.22,1,.36,1); }
+.task-strike { position:relative; }
+.task-strike::after {
+  content:''; position:absolute; left:0; top:50%; height:1.5px;
+  background:var(--muted); animation:strikeIn .3s ease both;
+}
 
-/* ── Bottom nav ── */
-.nav-item { transition: color .15s, transform .15s; }
-.nav-item.active { color: var(--orange) !important; }
-.nav-item:active { transform: scale(.88); }
-
-/* ── Ripple ── */
-@keyframes ripple { to { transform:scale(4); opacity:0; } }
-.ripple { position:absolute; border-radius:50%; background:rgba(249,115,22,.25); animation:ripple .5s ease; pointer-events:none; }
+/* ── BOTTOM NAV ────────────────────────────────────────────────────────── */
+.nav-btn { transition: all .2s cubic-bezier(.22,1,.36,1); }
+.nav-btn:active { transform: scale(.84); }

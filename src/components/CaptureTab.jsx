@@ -1,87 +1,102 @@
-// src/components/CaptureTab.jsx
 import React, { useState } from 'react'
 import { askClaude } from '../api/claude'
-import { AREA_COLOR, PRIO_COLOR } from '../constants'
+import { AREA_COLOR, AREA_ICON, PRIO_COLOR } from '../constants'
 
-const SYS = `Extract actionable tasks from a brain dump. Return ONLY valid JSON, no markdown fences, no explanation.
-{"tasks":[{"title":"verb-first concise action","area":"Work|Property|Family|Home|Health|Finance|Other","priority":"high|medium|low"}]}
-Rules: max 6 tasks, title must start with a verb, infer area and priority from context.`
+const SYS=`Extract actionable tasks from a brain dump. Return ONLY valid JSON.
+{"tasks":[{"title":"verb-first concise action","area":"Work|Property|Family|Home|Health|Finance|Other","priority":"high|medium|low","note":"any key context in 1 sentence or empty string"}]}
+Max 6 tasks. Title must start with a verb. Infer area and priority from urgency and context.`
 
 export function CaptureTab({ onImport }) {
-  const [text, setText] = useState('')
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [text,setText]=useState('')
+  const [result,setResult]=useState(null)
+  const [loading,setLoading]=useState(false)
+  const [error,setError]=useState(null)
 
-  async function extract() {
-    if (!text.trim() || loading) return
-    setLoading(true); setResult(null); setError(null)
-    try {
-      const raw = await askClaude(SYS, text.trim())
-      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim())
-      setResult(parsed.tasks || [])
-    } catch {
-      setError('Could not parse tasks. Try rephrasing your dump.')
-    }
+  async function extract(){
+    if(!text.trim()||loading)return
+    setLoading(true);setResult(null);setError(null)
+    try{
+      const raw=await askClaude(SYS,text.trim())
+      const p=JSON.parse(raw.replace(/```json|```/g,'').trim())
+      setResult(p.tasks||[])
+    }catch{setError('Parse failed. Try rephrasing.')}
     setLoading(false)
   }
 
-  return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 14px', paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontFamily: 'var(--font-head)', fontSize: 9, fontWeight: 800, letterSpacing: 5, color: 'var(--orange)', marginBottom: 4 }}>⬡ BRAIN DUMP</div>
-        <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 800, color: 'var(--text)', lineHeight: 1.2 }}>AI extracts<br />your tasks</div>
+  return(
+    <div style={{flex:1,overflowY:'auto',paddingBottom:'calc(var(--nav-h)+20px)'}}>
+      <div style={{padding:'14px 16px 12px',position:'sticky',top:0,background:'var(--deep)',zIndex:10,borderBottom:'1px solid var(--rim)'}}>
+        <div style={{fontFamily:'var(--font-mono)',fontSize:8,color:'var(--signal)',letterSpacing:5,marginBottom:2}}>⬡ INTAKE</div>
+        <div style={{fontFamily:'var(--font-display)',fontSize:26,letterSpacing:3,color:'var(--bright)'}}>BRAIN DUMP</div>
+        <div style={{fontFamily:'var(--font-mono)',fontSize:9,color:'var(--subtle)',marginTop:2,letterSpacing:1}}>AI extracts structured tasks from raw thought</div>
       </div>
 
-      <textarea value={text} onChange={e => setText(e.target.value)}
-        placeholder={"Dump everything here...\n\nE.g.: R&D lead wants TinyTag shipped but BLE tests aren't done. Need to call Nexa Solar about the 8KW quote and confirm subsidy. Daughter's project due Friday. Book Dharamshala hotel before prices go up."}
-        style={{
-          width: '100%', minHeight: 140, background: 'var(--bg2)',
-          border: '1px solid var(--border2)', borderRadius: 10,
-          padding: '14px', color: 'var(--text)', fontSize: 13, lineHeight: 1.7,
-          outline: 'none', display: 'block'
-        }} />
+      <div style={{padding:'14px'}}>
+        <textarea value={text} onChange={e=>setText(e.target.value)}
+          placeholder={"Write anything. Messy is fine.\n\nExamples:\n— R&D lead wants TinyTag shipped but BLE not tested yet\n— Need to call Nexa Solar about the 8KW quote\n— Book Dharamshala before prices go up, June 4-7\n— Don't forget daughter's school project Friday"}
+          style={{
+            width:'100%',minHeight:160,background:'var(--surface)',
+            border:'1px solid var(--rim2)',borderRadius:16,
+            padding:'16px',color:'var(--text)',fontSize:14,lineHeight:1.8,
+            fontWeight:300,outline:'none',fontFamily:'var(--font-ui)',
+          }}/>
 
-      <button onClick={extract} disabled={loading || !text.trim()} style={{
-        marginTop: 10, width: '100%', padding: 14, background: loading ? 'var(--bg3)' : 'var(--bg2)',
-        border: `1px solid ${loading ? 'var(--border)' : 'var(--orange)'}`,
-        borderRadius: 10, color: loading ? 'var(--text3)' : 'var(--orange)',
-        fontFamily: 'var(--font-head)', fontWeight: 800, fontSize: 10, letterSpacing: 3, transition: 'all .15s'
-      }}>
-        {loading ? '⬡ EXTRACTING…' : '⬡ EXTRACT TASKS WITH AI'}
-      </button>
+        <button onClick={extract} disabled={loading||!text.trim()} style={{
+          marginTop:10,width:'100%',padding:'15px',
+          background:loading?'var(--surface)':text.trim()?'var(--signal)':'var(--surface)',
+          border:`1px solid ${loading?'var(--rim)':text.trim()?'var(--signal)':'var(--rim2)'}`,
+          borderRadius:14,
+          color:loading?'var(--muted)':text.trim()?'var(--deep)':'var(--muted)',
+          fontFamily:'var(--font-display)',fontSize:18,letterSpacing:4,
+          transition:'all .2s',
+        }}>
+          {loading?<span className="pulsing">PROCESSING…</span>:'EXTRACT OPS'}
+        </button>
 
-      {error && (
-        <div style={{ marginTop: 10, padding: '10px 14px', background: '#1a0808', border: '1px solid var(--red)44', borderRadius: 8, fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--red)' }}>{error}</div>
-      )}
+        {error&&<div style={{marginTop:10,padding:'10px 14px',background:'#1a0808',border:'1px solid var(--critical)30',borderRadius:10,fontFamily:'var(--font-mono)',fontSize:11,color:'var(--critical)'}}>{error}</div>}
 
-      {result !== null && result.length === 0 && !error && (
-        <div style={{ textAlign: 'center', padding: '20px', fontFamily: 'var(--font-head)', fontSize: 10, letterSpacing: 3, color: 'var(--text4)' }}>NO TASKS FOUND · TRY MORE DETAIL</div>
-      )}
+        {result&&result.length===0&&!error&&(
+          <div style={{textAlign:'center',padding:'30px',fontFamily:'var(--font-mono)',fontSize:10,color:'var(--muted)',letterSpacing:3}}>NOTHING EXTRACTED · TRY MORE DETAIL</div>
+        )}
 
-      {result && result.length > 0 && (
-        <>
-          <div style={{ padding: '14px 0 8px', fontFamily: 'var(--font-head)', fontSize: 9, fontWeight: 800, letterSpacing: 4, color: 'var(--text4)' }}>
-            EXTRACTED · {result.length} TASKS
-          </div>
-          {result.map((t, i) => (
-            <div key={i} className="fade-up" style={{ animationDelay: `${i * 0.06}s`, marginBottom: 7, padding: '12px 14px', background: 'var(--bg2)', border: '1px solid var(--border)', borderLeft: `3px solid ${PRIO_COLOR[t.priority] || PRIO_COLOR.medium}`, borderRadius: 9, display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1, fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.4 }}>{t.title}</div>
-              <span style={{ fontSize: 9, fontFamily: 'var(--font-head)', fontWeight: 800, letterSpacing: 1.5, color: AREA_COLOR[t.area] || '#94a3b8', background: `${AREA_COLOR[t.area] || '#94a3b8'}15`, border: `1px solid ${AREA_COLOR[t.area] || '#94a3b8'}40`, borderRadius: 3, padding: '2px 8px', flexShrink: 0 }}>
-                {(t.area || 'Other').toUpperCase()}
-              </span>
+        {result&&result.length>0&&(
+          <>
+            <div style={{padding:'16px 0 8px',display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontFamily:'var(--font-mono)',fontSize:8,letterSpacing:4,color:'var(--muted)'}}>EXTRACTED</span>
+              <div style={{height:1,flex:1,background:'linear-gradient(90deg,var(--signal)40,transparent)'}}/>
+              <span style={{fontFamily:'var(--font-mono)',fontSize:9,color:'var(--signal)',background:'var(--signal)15',border:'1px solid var(--signal)30',borderRadius:3,padding:'1px 8px'}}>{result.length}</span>
             </div>
-          ))}
-          <button onClick={() => { onImport(result); setResult(null); setText('') }} style={{
-            width: '100%', padding: 14, background: 'var(--orange)', border: 'none',
-            borderRadius: 10, color: '#fff', fontFamily: 'var(--font-head)', fontWeight: 800,
-            fontSize: 11, letterSpacing: 2, marginTop: 4
-          }}>
-            IMPORT ALL → TASKS
-          </button>
-        </>
-      )}
+            {result.map((t,i)=>(
+              <div key={i} className="fade-up" style={{animationDelay:`${i*.06}s`,marginBottom:8,
+                padding:'14px',background:'var(--surface)',
+                border:`1px solid ${AREA_COLOR[t.area]||'var(--rim)'}30`,
+                borderLeft:`2px solid ${AREA_COLOR[t.area]||'var(--dim)'}`,
+                borderRadius:12,
+              }}>
+                <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
+                  <span style={{fontFamily:'var(--font-mono)',fontSize:9,color:AREA_COLOR[t.area]||'var(--dim)',letterSpacing:2}}>
+                    {AREA_ICON[t.area]} {(t.area||'Other').toUpperCase()}
+                  </span>
+                  <span style={{color:'var(--rim2)'}}>·</span>
+                  <span style={{fontFamily:'var(--font-mono)',fontSize:9,color:PRIO_COLOR[t.priority]||'var(--dim)',letterSpacing:2}}>
+                    {(t.priority||'medium').toUpperCase()}
+                  </span>
+                </div>
+                <div style={{fontFamily:'var(--font-ui)',fontWeight:500,fontSize:14,color:'var(--text)',lineHeight:1.4,marginBottom:t.note?6:0}}>{t.title}</div>
+                {t.note&&<div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--subtle)',lineHeight:1.5}}>{t.note}</div>}
+              </div>
+            ))}
+            <button onClick={()=>{onImport(result);setResult(null);setText('')}} style={{
+              width:'100%',padding:'15px',marginTop:4,
+              background:'var(--signal)',border:'none',
+              borderRadius:14,color:'var(--deep)',
+              fontFamily:'var(--font-display)',fontSize:18,letterSpacing:4,
+            }}>
+              ADD TO OPS BOARD
+            </button>
+          </>
+        )}
+      </div>
     </div>
   )
 }
