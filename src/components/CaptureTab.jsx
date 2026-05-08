@@ -23,19 +23,28 @@ export function CaptureTab({ onImport }) {
     setLoading(false)
   }
 
+  function handleImport(){
+    onImport(result)
+    setResult(null)
+    setText('')
+  }
+
   return(
-    <div style={{flex:1,overflowY:'auto',paddingBottom:'calc(var(--nav-h)+20px)'}}>
-      <div style={{padding:'14px 16px 12px',position:'sticky',top:0,background:'var(--deep)',zIndex:10,borderBottom:'1px solid var(--rim)'}}>
+    <div style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden'}}>
+
+      {/* Fixed header */}
+      <div style={{padding:'14px 16px 12px',background:'var(--deep)',borderBottom:'1px solid var(--rim)',flexShrink:0}}>
         <div style={{fontFamily:'var(--font-mono)',fontSize:8,color:'var(--signal)',letterSpacing:5,marginBottom:2}}>⬡ INTAKE</div>
         <div style={{fontFamily:'var(--font-display)',fontSize:26,letterSpacing:3,color:'var(--bright)'}}>BRAIN DUMP</div>
         <div style={{fontFamily:'var(--font-mono)',fontSize:9,color:'var(--subtle)',marginTop:2,letterSpacing:1}}>AI extracts structured tasks from raw thought</div>
       </div>
 
-      <div style={{padding:'14px'}}>
+      {/* Scrollable content */}
+      <div style={{flex:1,overflowY:'auto',padding:'14px'}}>
         <textarea value={text} onChange={e=>setText(e.target.value)}
           placeholder={"Write anything. Messy is fine.\n\nExamples:\n— R&D lead wants TinyTag shipped but BLE not tested yet\n— Need to call Nexa Solar about the 8KW quote\n— Book Dharamshala before prices go up, June 4-7\n— Don't forget daughter's school project Friday"}
           style={{
-            width:'100%',minHeight:160,background:'var(--surface)',
+            width:'100%',minHeight:150,background:'var(--surface)',
             border:'1px solid var(--rim2)',borderRadius:16,
             padding:'16px',color:'var(--text)',fontSize:14,lineHeight:1.8,
             fontWeight:300,outline:'none',fontFamily:'var(--font-ui)',
@@ -86,17 +95,32 @@ export function CaptureTab({ onImport }) {
                 {t.note&&<div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--subtle)',lineHeight:1.5}}>{t.note}</div>}
               </div>
             ))}
-            <button onClick={()=>{onImport(result);setResult(null);setText('')}} style={{
-              width:'100%',padding:'15px',marginTop:4,
-              background:'var(--signal)',border:'none',
-              borderRadius:14,color:'var(--deep)',
-              fontFamily:'var(--font-display)',fontSize:18,letterSpacing:4,
-            }}>
-              ADD TO OPS BOARD
-            </button>
+            {/* Spacer so last card isn't hidden behind sticky footer */}
+            <div style={{height:80}}/>
           </>
         )}
       </div>
+
+      {/* Sticky footer — ADD TO OPS always visible when results exist */}
+      {result&&result.length>0&&(
+        <div style={{
+          flexShrink:0,
+          padding:'12px 14px',
+          paddingBottom:'calc(12px + env(safe-area-inset-bottom,0px))',
+          background:'linear-gradient(0deg,var(--deep) 80%,transparent)',
+          borderTop:'1px solid var(--rim)',
+        }}>
+          <button onClick={handleImport} style={{
+            width:'100%',padding:'16px',
+            background:'var(--signal)',border:'none',
+            borderRadius:14,color:'var(--deep)',
+            fontFamily:'var(--font-display)',fontSize:18,letterSpacing:4,
+            boxShadow:'0 0 24px var(--signal)40',
+          }}>
+            ADD TO OPS BOARD →
+          </button>
+        </div>
+      )}
     </div>
   )
 }
