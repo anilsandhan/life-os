@@ -22,6 +22,7 @@ export const NAV_TABS = [
   { id:'ai',      sym:'◎', label:'INTEL'   },
   { id:'stats',   sym:'▲', label:'BRIEF'   },
   { id:'capture', sym:'⬡', label:'INTAKE'  },
+  { id:'roadmap', sym:'◆', label:'ROADMAP' },
 ]
 
 export const SEED_TASKS = [
